@@ -14,7 +14,7 @@ troubleshooting and config variables.
 * Requirements scale **~1GB RAM** per user additional after 4.
 * Late game saves may be very large depending on complexity (**>5GB**).
 
-> Hairpin NAT is required. Local connections are **not** supported.
+> Hairpin NAT is required for player connections.
 
 > Tasks [potentially touching Network Mounted Filesystems][o] will be run as
 > the task user and fallback to the service user. Manage these locations
@@ -26,8 +26,10 @@ troubleshooting and config variables.
 
 ### SECURITY
 > Do **not** expose **7777/TCP** to the Internet. There are currently RCE's for
-> exposed remote management. This has been hard disabled in the role until
-> resolved. See defaults and [Vulnerability Announcement][p].
+> exposed remote management. 'Manage Server' can still be used locally by
+> directly connecting to the local IP. After configuring the
+> [game client must be restarted to connect][s]. See defaults and
+> [Vulnerability Announcement][p].
 
 ## Role Variables
 Detailed variable use documented in defaults. See usage for role operation.
@@ -51,11 +53,16 @@ Tasks are gated by feature flags and executed in the following order.
   5    | star_rupture_flg_backup    | Enable local scheduled backup.
 
 ### Example Playbooks
-
 * **[templates/default][q]** - pre-defined server settings.
 
-#### New Server
-New server creation requires an admin to start the game and create a save.
+#### Static Deployment
+Due to the existing [vulnerabilities][p] this is the recommended way to setup
+a server.
+
+##### New Server
+New server creation requires deploying, connecting to initialize the new
+session, and then updating DSSettings.txt to automatically load the session on
+server reboots.
 
 ``` yaml
 - name: 'Create new Star Rupture server.'
@@ -66,18 +73,25 @@ New server creation requires an admin to start the game and create a save.
     # Loads templates/default/new_game.json
     star_rupture_srv_admin: '{{ vault_admin_password }}'
     star_rupture_srv_user: '{{ vault_user_password }}'
-
-# 1. Connect to server as admin to initialize game start.
-# 2. Save game and disconnect.
-# 3. Update server configure to auto-load save on start.
 ```
 
-Apply [Deploy Existing Server](#deploy-existing-server) to auto-load save on
-launch.
+After the server is deployed you **must**:
+1. Connect to server Public IP as player to start game.
+2. Disconnect.
+3. Stop server.
+4. Update **star_rupture_srv_ds** file to use (see [load_save.json][t]):
+   * StartNewGame=false
+   * LoadSaveGame=true
+5. Run role to set server to automatically load the specified session
+   and latest AutoSave*.sav file on boot.
 
-#### Deploy Existing Server
+Any server reboot before this happens will reset the session state.
+
+##### Deploy Existing Server
 Configuration files will be interpreted as templates, allowing for vault use of
-server configuration files.
+server configuration files. With static deployments, the service will
+**automatically** load the latest AutoSave*.sav from the specified session in
+DSSettings.txt.
 
 ``` yaml
 - name: 'Deploy a Star Rupture with custom game settings.'
@@ -91,6 +105,24 @@ server configuration files.
     star_rupture_srv_admin: '{{ vault_admin_password }}'
     star_rupture_srv_user: '{{ vault_user_password }}'
 ```
+
+#### Remote Management
+The server may also be remotely managed via the game client. See
+[Security](#security) notice above. State is not kept between service restarts
+when configured to use remote management.
+
+> There is a [known issue][s] where configuring the server and then attempting
+> to connect as a player will result in a 'More than one server at this IP'.
+> You will need to fully restart the client to connect if this happens.
+
+1. Start Client ➔ Manage Server ➔ local IP
+2. Any IP in which port **7777/TCP** is accessible will work. Use the admin
+   password.
+3. A new game may be created or an old save can be loaded. Be sure to start the
+   game.
+4. Exit the client.
+5. Start Client ➔ Join Game ➔ Public IP
+6. Use player password.
 
 ## Development
 Configure [environment][a].
@@ -140,3 +172,5 @@ PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
 [p]: https://wiki.starrupture-utilities.com/en/dedicated-server/Vulnerability-Announcement
 [q]: https://github.com/r-pufky/ansible_star_rupture/tree/main/templates/default
 [r]: https://starrupture-utilities.com
+[s]: https://r-pufky.github.io/docs/game/star_rupture
+[t]: https://github.com/r-pufky/ansible_star_rupture/blob/main/templates/default/load_save.json

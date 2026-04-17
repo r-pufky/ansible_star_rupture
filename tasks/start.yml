@@ -62,3 +62,24 @@
       {{ item }}
   loop:
     - 'star_rupture_backup.service'
+
+- name: 'Start | 🛆 Additional configuration needed. 🛆'
+  ansible.builtin.debug:
+    msg: |
+
+      🛆 New Game (new_game.json) Required Actions 🛆
+
+      1. Connect to server Public IP as player to start game.
+      2. Disconnect.
+      3. Stop server.
+      4. Update star_rupture_srv_ds file to use:
+         StartNewGame=false
+         LoadSaveGame=true
+      5. Run role to set server to automatically load the specified session
+         and latest AutoSave*.sav file on boot.
+
+      Any server reboot before this happens will reset the session state.
+
+      See:
+      * https://github.com/r-pufky/ansible_star_rupture
+      * https://r-pufky.github.io/docs/game/star_rupture
