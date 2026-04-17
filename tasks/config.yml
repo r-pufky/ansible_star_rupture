@@ -1,0 +1,16 @@
+---
+###############################################################################
+# Config
+###############################################################################
+# File does not exist by default but is required if disabling remote control.
+#
+# Reference:
+# * https://wiki.starrupture-utilities.com/en/dedicated-server/configuration
+
+- name: '{{ "Install | filesystem | set " ~ star_rupture___app._ds_settings }}'
+  ansible.builtin.template:
+    src: '{{ star_rupture__srv._ds }}'
+    dest: '{{ star_rupture___app._ds_settings }}'
+    owner: '{{ steam__ctx._user }}'
+    group: '{{ steam__ctx._group }}'
+    mode: '0640'

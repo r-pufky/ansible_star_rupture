@@ -1,0 +1,28 @@
+---
+###############################################################################
+# Install
+###############################################################################
+# Updating will also install if not pre-existing.
+#
+# Reference:
+# * https://wiki.starrupture-utilities.com/en/dedicated-server/installation
+
+- name: 'Update | steamcmd | 🗘 updating server (20GB, ~13 minutes) 🗘'
+  ansible.builtin.debug:
+    msg: |
+
+      🗘 Updating ~20GB (~13 minutes @ 200Mbps). 🗘
+
+- name: '{{ "Update | steamcmd | update " ~ star_rupture___release._app_id }}'
+  ansible.builtin.shell: '{{
+      star_rupture___app._steamcmd ~
+      "+app_update " ~ star_rupture___release._app_id ~ " " ~
+      star_rupture__srv._update_opts ~ " " ~
+      "+quit"
+    }}'
+  args:
+    executable: '/bin/bash'
+    chdir: '{{ steam__ctx._home }}'
+  changed_when: false
+  become: true
+  become_user: '{{ steam__ctx._user }}'

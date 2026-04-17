@@ -1,0 +1,69 @@
+---
+###############################################################################
+# Pre Execution Tasks
+###############################################################################
+# Only use data annotations in role after merging role, defaults, runtime data.
+# Service may not exist if first install.
+
+- name:
+    'Prep | fact | force star_rupture_flg_container=true (deb_flg_container)'
+  when: deb_flg_container | default(false)
+  ansible.builtin.set_fact:
+    star_rupture_flg_container: true
+
+- name: 'Prep | fact | record start time'
+  ansible.builtin.set_fact:
+    star_rupture__srv: "{{ star_rupture___release | r_pufky.data.v3(
+
+        _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
+        _token=star_rupture_srv_token,
+        _update_opts=star_rupture_srv_update_opts | join(' '),
+        _launch_opts=(
+          star_rupture_srv_launch_opts | map('regex_replace', '^', '-') |
+          join(' ')
+        ),
+        _ds=star_rupture_srv_ds,
+        _admin=star_rupture_srv_admin,
+        _user=star_rupture_srv_user,
+
+      ) }}"
+
+    star_rupture__cfg: "{{ {} | r_pufky.data.v3(
+
+        _backup_d=star_rupture_cfg_backup_d | regex_replace('\\/$', ''),
+        _backup_schedule=star_rupture_cfg_backup_schedule,
+
+        _admin_generate=(
+          true
+          if (
+            star_rupture_srv_admin != 'StarRuptureAdmin' and
+            star_rupture_srv_admin | length > 0
+          ) else
+          false
+        ),
+        _admin_token=(
+          ''
+          if star_rupture_srv_admin | length == 0 else
+          star_rupture___app._admin_default
+        ),
+
+        _user_generate=(
+          true
+          if (
+            star_rupture_srv_user != 'StarRupture' and
+            star_rupture_srv_user | length > 0
+          ) else
+          false
+        ),
+        _user_token=(
+          ''
+          if star_rupture_srv_user | length == 0 else
+          star_rupture___app._user_default
+        ),
+      ) }}"
+
+- name: 'Prep | systemd | stop star_rupture.service'
+  ansible.builtin.systemd:
+    name: 'star_rupture.service'
+    state: 'stopped'
+  failed_when: false

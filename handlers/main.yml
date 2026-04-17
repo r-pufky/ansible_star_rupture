@@ -1,0 +1,31 @@
+---
+###############################################################################
+# Handlers
+###############################################################################
+
+- name: 'Handlers | load star_rupture_backup'
+  listen:
+    - 'Handlers | enable star_rupture_backup'
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    enabled: true
+    daemon_reload: true
+  loop:
+    - 'star_rupture_backup.service'
+    - 'star_rupture_backup.timer'
+
+- name: 'Handlers | star_rupture_backup.timer (tick)'
+  listen:
+    - 'Handlers | enable star_rupture_backup'
+  ansible.builtin.systemd:
+    name: 'star_rupture_backup.timer'
+    state: 'started'
+
+- name: 'Handlers | disable star_rupture_backup'
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    enabled: false
+    state: 'stopped'
+  loop:
+    - 'star_rupture_backup.service'
+    - 'star_rupture_backup.timer'

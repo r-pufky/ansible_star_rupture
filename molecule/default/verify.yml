@@ -1,0 +1,28 @@
+---
+- name: 'Verify'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Prepare | import role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
+          }}'
+
+    # Just spot check templated password file format as tokens are either auto
+    # generated or received from the REST API server.
+    - name: '{{ "Verify | test | " ~ star_rupture___app._admin_pass }}'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: '{{ "Verify | test | " ~ star_rupture___app._admin_pass }}'
+        test_src: '{{
+            lookup("env", "MOLECULE_SCENARIO_DIRECTORY") ~
+            "/files/Password.json"
+          }}'
+        test_file: '{{ star_rupture___app._admin_pass }}'
+        test_owner: 'steam'
+        test_group: 'steam'
+        test_mode: '0640'
+        test_diff: true

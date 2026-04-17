@@ -1,0 +1,64 @@
+---
+###############################################################################
+# Start
+###############################################################################
+# Start services and confirm they are active and running.
+
+# Star Rupture typically takes ~10 seconds to report active.
+- name: 'Start | systemd | star_rupture.service'
+  ansible.builtin.systemd:
+    name: 'star_rupture.service'
+    state: 'started'
+    enabled: true
+    daemon_reload: true
+  delay: 15
+  retries: 3
+  register: star_rupture__service
+  until: star_rupture__service.status.ActiveState == 'active'
+
+# Star Rupture must be started before first backup timer triggers.
+- name: 'Start | meta | 🗘 flush timers 🗘'
+  ansible.builtin.meta: flush_handlers
+
+- name: 'Start | fact | query services'
+  ansible.builtin.service_facts:
+
+- name: 'Start | assert | services running'
+  ansible.builtin.assert:
+    quiet: true
+    that: ansible_facts.services[item].state == 'running'
+    fail_msg: |
+
+      ✘ Service failed to start.
+      {{ item }}
+  loop:
+    - 'star_rupture.service'
+
+- name: 'Start | systemd | query star_rupture_backup.timer'
+  when: star_rupture_flg_backup
+  ansible.builtin.command: 'systemctl status star_rupture_backup.timer'
+  changed_when: false
+  register: star_rupture__cmd
+
+- name: 'Start | assert | star_rupture_backup.timer active'
+  when: star_rupture_flg_backup
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - star_rupture__cmd.rc == 0
+      - '"Active: active" in star_rupture__cmd.stdout'
+    fail_msg: |
+
+      ✘ star_rupture_backup.timer should be active.
+
+- name: 'Start | assert | star_rupture_backup.service enabled'
+  when: star_rupture_flg_backup
+  ansible.builtin.assert:
+    quiet: true
+    that: ansible_facts.services[item].status == 'enabled'
+    fail_msg: |
+
+      ✘ Service should be enabled.
+      {{ item }}
+  loop:
+    - 'star_rupture_backup.service'

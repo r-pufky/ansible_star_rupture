@@ -1,0 +1,43 @@
+---
+###############################################################################
+# API
+###############################################################################
+# Use Star Rapture developer REST API to generate password tokens for dedicated
+# server.
+#
+# A authentication token is a given password, binary encrypted with developer
+# RSA-4096 and base64 encoded. Consider all passwords sent compromised.
+#
+# Reference:
+# * https://starrupture-utilities.com/passwords/
+
+- name: 'API | auth | passwords'
+  block:
+    - name: 'API | auth | create tokens'
+      ansible.builtin.uri:
+        url: '{{ star_rupture___app._url }}'
+        method: 'POST'
+        status_code: [200]
+        body:
+          adminpassword: '{{ star_rupture__srv._admin }}'
+          playerpassword: '{{ star_rupture__srv._user }}'
+        body_format: 'form-urlencoded'
+        validate_certs: true
+      register: star_rupture__api
+
+    # No password set will return empty string (valid).
+    - name: 'API | auth | cache tokens'
+      ansible.builtin.set_fact:
+        star_rupture__cfg: "{{ star_rupture__cfg | r_pufky.data.v3(
+
+            _admin_token=star_rupture__api.json.adminpassword,
+            _user_token=star_rupture__api.json.playerpassword,
+          ) }}"
+  rescue:
+    - name: 'API ⛑ | auth | 🛆 FAILED 🛆'
+      ansible.builtin.fail:
+        msg: |
+
+          ✘ API failed.
+
+          {{ star_rupture__api.status_code }}: {{ star_rupture__api.msg }}

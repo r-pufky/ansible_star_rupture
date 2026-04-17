@@ -1,0 +1,8 @@
+---
+- name: 'Converge'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Converge | role | r_pufky.game.star_rupture'
+      ansible.builtin.include_role:
+        name: 'r_pufky.game.star_rupture'

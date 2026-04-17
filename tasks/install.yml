@@ -1,0 +1,112 @@
+---
+###############################################################################
+# Install
+###############################################################################
+# Create service and backup directories, configuration files.
+#
+# Reference:
+# * https://wiki.starrupture-utilities.com/en/dedicated-server/installation
+
+- name: 'Install | steamcmd'
+  ansible.builtin.import_role:
+    name: 'r_pufky.game.steam'
+  vars:
+    steam_flg_wine: true
+    steam_flg_container: '{{ star_rupture_flg_container }}'
+    steam_flg_cdn: '{{ star_rupture_flg_cdn }}'
+    steam_flg_update: false
+    steam_srv_token: '{{ star_rupture__srv._token }}'
+
+- name: 'Install | filesystem | find current installation'
+  ansible.builtin.stat:
+    path: '{{ star_rupture___app._bin }}'
+  register: star_rupture__installed
+
+- name: 'Install | fact | set install state'
+  ansible.builtin.set_fact:
+    star_rupture__cfg: "{{ star_rupture__cfg | r_pufky.data.v3(
+
+        _is_installed=star_rupture__installed.stat.exists,
+      ) }}"
+
+- name: '{{ "Install | filesystem | set " ~ star_rupture___app._root_d }}'
+  ansible.builtin.file:
+    path: '{{ star_rupture___app._root_d }}'
+    owner: '{{ steam__ctx._uid }}'
+    group: '{{ steam__ctx._gid }}'
+    mode: '0775'  # Game enforced.
+    state: 'directory'
+
+- name: '{{ "Install | filesystem | set " ~ star_rupture___app._save_d }}'
+  ansible.builtin.file:
+    path: '{{ star_rupture___app._save_d }}'
+    owner: '{{ steam__ctx._uid }}'
+    group: '{{ steam__ctx._gid }}'
+    mode: '0755'
+    state: 'directory'
+
+- name: '{{ "Install | filesystem | set " ~ star_rupture__cfg._backup_d }}'
+  when: star_rupture_flg_backup
+  block:
+    - name: '{{ "Install | filesystem | set " ~ star_rupture__cfg._backup_d }}'
+      ansible.builtin.file:
+        path: '{{ star_rupture__cfg._backup_d }}'
+        owner: '{{ steam__ctx._uid }}'
+        group: '{{ steam__ctx._gid }}'
+        mode: '0755'
+        state: 'directory'
+  rescue:
+    - name:
+        '{{ "Install ⛑ | filesystem | set " ~ star_rupture__cfg._backup_d }}'
+      ansible.builtin.file:
+        path: '{{ star_rupture__cfg._backup_d }}'
+        owner: '{{ steam__ctx._uid }}'
+        group: '{{ steam__ctx._gid }}'
+        mode: '0755'
+        state: 'directory'
+      become: true
+      become_user: '{{ steam__ctx._user }}'
+
+- name: 'Install | API'
+  when: >
+    not (molecule_flg_inject | default(false)) and
+    (star_rupture__cfg._admin_generate or star_rupture__cfg._user_generate)
+  ansible.builtin.include_tasks: 'api.yml'
+
+- name: '{{ "Install | filesystem | set " ~ star_rupture___app._ds_settings }}'
+  when: not star_rupture_flg_config
+  ansible.builtin.template:
+    src: 'templates/default/new_game.json'
+    dest: '{{ star_rupture___app._ds_settings }}'
+    owner: '{{ steam__ctx._user }}'
+    group: '{{ steam__ctx._group }}'
+    mode: '0640'
+
+# TODO - confirm blank token disables password.
+- name: '{{ "Install | filesystem | set " ~ star_rupture___app._admin_pass }}'
+  ansible.builtin.template:
+    src: 'templates/auth.json.j2'
+    dest: '{{ star_rupture___app._admin_pass }}'
+    owner: '{{ steam__ctx._user }}'
+    group: '{{ steam__ctx._group }}'
+    mode: '0640'
+  vars:
+    value: '{{ star_rupture__cfg._admin_token }}'
+
+- name: '{{ "Install | filesystem | set " ~ star_rupture___app._user_pass }}'
+  ansible.builtin.template:
+    src: 'templates/auth.json.j2'
+    dest: '{{ star_rupture___app._user_pass }}'
+    owner: '{{ steam__ctx._user }}'
+    group: '{{ steam__ctx._group }}'
+    mode: '0640'
+  vars:
+    value: '{{ star_rupture__cfg._user_token }}'
+
+- name: 'Install | systemd | set star_rupture.service'
+  ansible.builtin.template:
+    src: 'systemd/star_rupture.service.j2'
+    dest: '/etc/systemd/system/star_rupture.service'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'

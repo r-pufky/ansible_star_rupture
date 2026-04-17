@@ -1,0 +1,68 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Default
+###############################################################################
+# Default values result in running Star Rupture server.
+#
+# Requirements:
+# * steam role must exist adjacent to star_rupture.
+# * Extremely heavy test setup (~20GB). Use --destroy=never.
+#
+# Tests:
+# * DSSettings.txt set.
+# * Star Rupture server is running.
+# * Password files are rendered correctly.
+# * Backup jobs are created.
+
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'vagrant'
+  provider:
+    name: 'libvirt'
+    type: 'libvirt'
+provisioner:
+  name: 'ansible'
+  connection_options:
+    ansible_ssh_user: 'vagrant'
+    ansible_become: true
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+  inventory:
+    group_vars:
+      all:
+        molecule_flg_inject: true
+        star_rupture_flg_update: false
+        star_rupture_flg_config: true
+        star_rupture_flg_backup: true
+        star_rupture_srv_ds: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/templates/default/new_game.json"
+          }}'
+platforms:
+  - name: 'star-rupture-default'
+    box: 'debian/trixie64'
+    memory: 4096
+    cpus: 2
+    interfaces:
+      - network_name: 'private_network'
+        auto_config: true
+        type: 'dhcp'
+    instance_raw_config_args:
+      - 'vm.network "forwarded_port", guest: 7777, host: 7777, protocol: "udp"'
+      - 'vm.network "forwarded_port", guest: 7777, host: 7777, protocol: "tcp"'
+      - 'vm.network "forwarded_port", guest: 27015, host: 27015, protocol: "udp"'
+verifier:
+  name: 'ansible'
+scenario:
+  test_sequence:
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    - 'prepare'
+    - 'converge'
+    - 'verify'
+    - 'destroy'

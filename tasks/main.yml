@@ -1,0 +1,19 @@
+---
+- name: 'Prep'
+  ansible.builtin.import_tasks: 'prep.yml'
+- name: 'Install'
+  ansible.builtin.import_tasks: 'install.yml'
+
+- name: 'Update'
+  when: star_rupture_flg_update or not star_rupture__cfg._is_installed
+  ansible.builtin.import_tasks: 'update.yml'
+
+- name: 'Config'
+  when: star_rupture_flg_config
+  ansible.builtin.import_tasks: 'config.yml'
+
+- name: 'Backup'
+  ansible.builtin.import_tasks: 'backup.yml'
+
+- name: 'Start'
+  ansible.builtin.import_tasks: 'start.yml'

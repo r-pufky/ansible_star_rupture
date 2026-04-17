@@ -1,0 +1,9 @@
+[Unit]
+Description=star_rupture_backup.service timer.
+Requires=star_rupture_backup.service
+
+[Timer]
+OnBootSec={{ star_rupture__cfg._backup_schedule | default("1d") }}
+
+[Install]
+WantedBy=timers.target

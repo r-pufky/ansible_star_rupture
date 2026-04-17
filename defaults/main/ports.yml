@@ -1,0 +1,25 @@
+---
+###############################################################################
+# Ports Configuration
+###############################################################################
+# Manage firewall with r_pufky.deb.ufw.
+#
+# Reference:
+# * https://github.com/r-pufky/ansible_ufw
+
+star_rupture_ports:
+  - proto: 'udp'
+    from_ip: 'any'
+    to_port: 7777
+    direction: 'in'
+    comment: 'Star Rupture main game connections'
+  - proto: 'tcp'
+    from_ip: 'any'
+    to_port: 7777
+    direction: 'in'
+    comment: 'Star Rupture main game connections'
+  - proto: 'udp'
+    from_ip: 'any'
+    to_port: 27015
+    direction: 'in'
+    comment: 'Star Rupture server query port'

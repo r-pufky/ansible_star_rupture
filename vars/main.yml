@@ -1,0 +1,84 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Star Rupture Options
+###############################################################################
+#
+# Updates:
+# * Version is determined by CL file in root install directory.
+# * KEEP a separate change log as changes are made.
+# * Use bare-metal docs to validate package/process changes.
+# * Update defaults.
+# * Update tests for any changes.
+# * Standard validation testing (yamllint, ansible-lint, to-do, no-qa).
+#
+# Reference:
+# * https://wiki.starrupture-utilities.com/en/dedicated-server/configuration
+# * https://www.survivalservers.com/wiki/index.php/How_to_Create_a_StarRupture_Server_Guide
+# yamllint enable rule:line-length
+
+star_rupture___release: "{{ {} | r_pufky.data.v3(
+
+    _date='2026-04-15',
+    _debian='trixie',
+    _app='CL118629',
+    _app_id='3809400',
+    _platform='windows',
+  ) }}"
+
+###############################################################################
+# Star Rupture
+###############################################################################
+# Use Star Rapture developer REST API to generate password tokens for dedicated
+# server.
+#
+# A authentication token is a password binary encrypted with developer RSA-4096
+# key and base64 encoded. Consider all passwords sent compromised.
+#
+# The pre-generated passwords are StarRuptureAdmin, StarRupture.
+#
+# Reference:
+# * https://starrupture-utilities.com/passwords
+
+star_rupture___app: "{{ {} | r_pufky.data.v3(
+
+    _root_d='/home/steam/star_rupture',
+    _save_d='/home/steam/star_rupture/StarRupture/Saved/SaveGames',
+    _ds_settings='/home/steam/star_rupture/DSSettings.txt',
+    _admin_pass='/home/steam/star_rupture/Password.json',
+    _user_pass='/home/steam/star_rupture/PlayerPassword.json',
+    _bin=(
+      '/home/steam/star_rupture/StarRupture/Binaries/Win64/' ~
+      'StarRuptureServerEOS-Win64-Shipping.exe'
+    ),
+    _steamcmd=(
+      '/usr/games/steamcmd ' ~
+      '+@sSteamCmdForcePlatformType ' ~ star_rupture___release._platform ~
+      ' +force_install_dir /home/steam/star_rupture +login anonymous '
+    ),
+    _url='https://starrupture-utilities.com/passwords/',
+    _admin_default=(
+      'FxfpAdoPqYo75e0PsdydDmu+eeagDxK4ZAX/qe+Z87dIcUE/zrkMNWx8vY89M8dgGlS0J' ~
+      'HwTbxaiPRNdlsF5gRvSI5fQdjJKW7G8DwDu3VDf0/3NE+dkXl0Ce0d//CIUZb23sgPtnF' ~
+      '1eyElO2ozCYMMAuK4Rf9HIvYuxpyMFeG9bysWeNZMf6TMz9rAbuc/hKqZq4e8DDfT7Beb' ~
+      '11CRSijhPpA/XsylBl6FDVEKg7bsLCFkJQNLcEvyU25SK1wV/RATwu8IEq7IP9vIJdTsA' ~
+      'NcfbuJb/SlyEZDJ5qaCAuogvRCENt6QXIXleydghX4l7QMlbQucYnKnteRR6hzvY5ymci' ~
+      'Sbx0Ra7R+0zx7hdGzG/KM7VS3vXeV6+DXtApIn1PyAOR9K/gZJmt2oXtRXi2wU1O3WYLq' ~
+      'bNKCDohrAB+06PFUvFTfNhnTWH6HWPzOpuWX2ml+yuBqLBO/XK6X+4s2X24mGiuSQKZ4V' ~
+      'z87jPZrlHtTrZxfatddcFSKpvJSFyKZplTWMMUbBtF4ZB8rsT9kJrh/VSDhHEjSP5Ivjz' ~
+      'RpYtfcFrHqmdQBqPfYotwCjuSwSp7X+JbxmgTtx7k0WPX1ID0dVmsEnBiG9vtQUsZmNaW' ~
+      'lVml1gz6Mn7V5lqPUx4PIpOXwPH3q+hfSnU9QfDzx1CKNbOISbncLXp09fNmDA='
+    ),
+    _user_default=(
+      'UnuJresPV17srVWU4nSScccUDem/eROZBifuvGHI9Gr7hXlWMMOL736yF+ozzqlMyGxdD' ~
+      '4BT8Vkd4GEC7DU0ZdIssBtdMH1r5jZaMIRhLMRBj5EdlUEJUeNLscjMVnkYrLdVegVXFU' ~
+      's5Kz2JSfishF83F0jUB6ADsv2u3dZmcK/NdbcylnXw/Toq5PpDHKwX8PMKTJDBgYCIZf/' ~
+      'FJDBZk3oEPWLx3CMT/jwqrXZHpoNWr26G9cyUwXeQjHZO7jD1FzHHc6opGmRdgyOTRUqU' ~
+      'hYeDJ435a6kxyfkIb2lrrBX2EAyoWR2tDzu/QFjGPBXtm20yodT97tWD+ijSwAAiKyYE0' ~
+      'Mg3kU1IdOO1pVCgIHibHQO54tvarO5IsqbKwLt0fjy3C7e//Z6MyzyAAa9oQIb3bZOb1H' ~
+      '/db4rhm9Ez6l6KiOHHAcno+ui2JCuoGqzboIkGWIuOlS1D/3sFOin1r1NyHWowiBqvYg0' ~
+      'uJSVl5klW+7O9Z3xfE1GgpFytYXnj2jhy21t4effB4aelnHHn6toSFeVMWuPP8orhtmyj' ~
+      '49fNP2DmENGW55IQ1PjeQJd4/kJ4rrHQRPJxwaCvw4grKjjdXt9RLXZgL8FcSpmpNIqwK' ~
+      'qHJ0MV+cyDNjKh7j/Tc7kIbPi1GjL7+9/hLWyZqnNwoMuA4eAHSIaVMyNp+aHI='
+    ),
+  ) }}"

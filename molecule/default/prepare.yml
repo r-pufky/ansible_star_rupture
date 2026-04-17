@@ -1,0 +1,75 @@
+---
+- name: 'Prepare | steamcmd'
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  tasks:
+    # Cache binaries for steamcmd installation (See: steam/molecule/prepare).
+    - name: 'Prepare | check steam role'
+      ansible.builtin.stat:
+        path: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") | dirname ~
+            "/steam/vars/main.yml"
+          }}'
+      register: star_rupture__cmd
+
+    - name: 'Prepare | assert | steam role exists'
+      ansible.builtin.assert:
+        quiet: true
+        that: star_rupture__cmd.stat.exists
+        fail_msg: |
+
+          ✘ steam role (r_pufky.game.steam) must exist adjacent to this role.
+
+          roles/star_rupture
+          roles/steam
+
+    - name: 'Prepare | import steam role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") | dirname ~
+            "/steam/vars/main.yml"
+          }}'
+
+    - name: 'Prepare | cache'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
+        tasks_from: 'create_cache.yml'
+      vars:
+        test_name: 'Prepare cache'
+
+    - name: '{{ "Prepare | cache | winetricks " ~ steam___wine._tricks }}'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
+        tasks_from: 'cache_url.yml'
+      vars:
+        test_name: '{{
+            "Prepare | cache | winetricks " ~ steam___wine._tricks
+          }}'
+        test_dest: '{{ steam___wine._package }}'
+        test_url: '{{ steam___wine._url }}'
+        test_mode: '0640'
+
+- name: 'Prepare'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    # Cache binaries for steamcmd installation (See: steam/molecule/prepare).
+    - name: 'Prepare | import steam role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") | dirname ~
+            "/steam/vars/main.yml"
+          }}'
+
+    - name: 'Prepare | inject | cached packages'
+      when: (molecule_flg_inject | default(false))
+      ansible.builtin.copy:
+        src: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/molecule/cache/" ~
+            steam___wine._package
+          }}'
+        dest: '{{ "/tmp/" ~ steam___wine._package }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'

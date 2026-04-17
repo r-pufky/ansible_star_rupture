@@ -1,0 +1,28 @@
+---
+###############################################################################
+# Backup
+###############################################################################
+# Deploy backup services.
+
+- name: 'Backup | systemd | enable backup'
+  when: star_rupture_flg_backup
+  notify: 'Handlers | enable star_rupture_backup'
+  ansible.builtin.template:
+    src: '{{ "systemd/" ~ item ~ ".j2" }}'
+    dest: '{{ "/etc/systemd/system/" ~ item }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  loop:
+    - 'star_rupture_backup.service'
+    - 'star_rupture_backup.timer'
+
+- name: 'Backup | systemd | disable backup'
+  when: not star_rupture_flg_backup
+  notify: 'Handlers | disable star_rupture_backup'
+  ansible.builtin.file:
+    path: '{{ "/etc/systemd/system/" ~ item }}'
+    state: 'absent'
+  loop:
+    - 'star_rupture_backup.service'
+    - 'star_rupture_backup.timer'

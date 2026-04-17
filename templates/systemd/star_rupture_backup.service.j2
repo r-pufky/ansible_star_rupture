@@ -1,0 +1,15 @@
+[Unit]
+Description=Star Rupture backup.
+Requires=star_rupture_backup.timer
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c '/usr/bin/tar -cvJf "{{ star_rupture__cfg._backup_d }}/$(date --iso-8601).tar.xz" "{{ star_rupture___app._save_d }}"'
+WorkingDirectory={{ star_rupture___app._root_d }}
+User={{ steam__ctx._user }}
+Group={{ steam__ctx._group }}
+
+[Install]
+WantedBy=multi-user.target
