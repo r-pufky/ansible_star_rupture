@@ -103,9 +103,6 @@ star_rupture_srv_update_opts: []
 #   * Disable 7777/tcp access from Internet.
 #   * Set RCWebControlDisable, RCWebInterfaceDisable.
 #
-# Automatically configures service with: Log, RCWebControlDisable,
-#     RCWebInterfaceDisable.
-#
 # Default: [].
 #   - 'MULTIHOME=0.0.0.0'
 #   - 'Port=7777'
@@ -114,6 +111,9 @@ star_rupture_srv_update_opts: []
 # Reference:
 # * https://wiki.starrupture-utilities.com/en/dedicated-server/configuration
 star_rupture_srv_launch_opts:
+  - 'Log'
+  - 'RCWebControlDisable'
+  - 'RCWebInterfaceDisable'
   - 'MULTIHOME=0.0.0.0'
   - 'Port=7777'
   - 'ServerName=StarRupture'
@@ -122,7 +122,8 @@ star_rupture_srv_launch_opts:
 # Star Rupture server configuration to set.
 #
 # Ansible controller path to source DSSettings.txt (treated as a jinja2
-# templates allowing for ansible variable use).
+# templates allowing for ansible variable use). If used the latest save for the
+# session is automatically loaded during service start.
 #
 # Sets /home/steam/star_rupture/DSSettings.ini.
 #
@@ -143,7 +144,10 @@ star_rupture_srv_ds: ''
 
 # Admin password.
 #
-# Password must be encrypted with the developer's 4096bit RSA key. Considered
+# Used for 'Manage Server' in game. This is not used to connect to the server
+# to play.
+#
+# Password is sent to developer API and signed with RSA-4096 key. Considered
 # any password used as compromised. Setting to empty string disables.
 #
 # Default: 'StarRuptureAdmin' (Use pre-generated keys).
@@ -154,7 +158,10 @@ star_rupture_srv_admin: 'StarRuptureAdmin'
 
 # User password.
 #
-# Password must be encrypted with the developer's 4096bit RSA key. Considered
+# Used for 'Join Game ➔ Dedicated Server' in game. This is no distinction
+# between players in the play session.
+#
+# Password is sent to developer API and signed with RSA-4096 key. Considered
 # any password used as compromised. Setting to empty string disables.
 #
 # Default: 'StarRupture' (Use pre-generated keys).

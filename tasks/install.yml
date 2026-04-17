@@ -5,6 +5,7 @@
 # Create service and backup directories, configuration files.
 #
 # Reference:
+# * https://starruptureplanner.com/guides/dedicated-server
 # * https://wiki.starrupture-utilities.com/en/dedicated-server/installation
 
 - name: 'Install | steamcmd'
@@ -102,6 +103,15 @@
     mode: '0640'
   vars:
     value: '{{ star_rupture__cfg._user_token }}'
+
+- name:
+    '{{ "Install | filesystem | set " ~ star_rupture___app._auto_load_save }}'
+  ansible.builtin.template:
+    src: 'templates/auto_load_save.j2'
+    dest: '{{ star_rupture___app._auto_load_save }}'
+    owner: '{{ steam__ctx._user }}'
+    group: '{{ steam__ctx._group }}'
+    mode: '0755'
 
 - name: 'Install | systemd | set star_rupture.service'
   ansible.builtin.template:

@@ -13,6 +13,7 @@
 # * Standard validation testing (yamllint, ansible-lint, to-do, no-qa).
 #
 # Reference:
+# * https://starruptureplanner.com/guides/dedicated-server
 # * https://wiki.starrupture-utilities.com/en/dedicated-server/configuration
 # * https://www.survivalservers.com/wiki/index.php/How_to_Create_a_StarRupture_Server_Guide
 # yamllint enable rule:line-length
@@ -47,6 +48,7 @@ star_rupture___app: "{{ {} | r_pufky.data.v3(
     _ds_settings='/home/steam/star_rupture/DSSettings.txt',
     _admin_pass='/home/steam/star_rupture/Password.json',
     _user_pass='/home/steam/star_rupture/PlayerPassword.json',
+    _auto_load_save='/home/steam/star_rupture/auto_load_save',
     _bin=(
       '/home/steam/star_rupture/StarRupture/Binaries/Win64/' ~
       'StarRuptureServerEOS-Win64-Shipping.exe'

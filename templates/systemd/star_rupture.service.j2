@@ -9,7 +9,8 @@ RestartSec=5s
 {% if star_rupture_flg_update %}
 ExecStartPre={{ star_rupture___app._steamcmd }} +app_update {{ star_rupture___release._app_id }} {{ star_rupture__srv._update_opts }} +quit
 {% endif %}
-ExecStart=/usr/bin/xvfb-run --auto-servernum --server-args='-screen 0 640x480x24:32' wine {{ star_rupture___app._bin }} -Log -RCWebControlDisable -RCWebInterfaceDisable {{ star_rupture__srv._launch_opts }}
+ExecStartPre={{ star_rupture___app._auto_load_save }}
+ExecStart=/usr/bin/xvfb-run --server-args='-screen 0 640x480x24:32' --auto-servernum wine {{ star_rupture___app._bin }} {{ star_rupture__srv._launch_opts }}
 WorkingDirectory={{ star_rupture___app._root_d }}
 Environment="WINEARCH=win64"
 Environment="WINEPREFIX={{ steam__ctx._home ~ '/.wine' }}"

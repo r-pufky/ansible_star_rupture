@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Only execute if DSSettings.txt exists. Determine latest save file using
+# DSSettings.txt SessionName and update SaveGameName to the latest AutoSave
+# file for the session, defaulting to AutoSave0.sav if not found.
+
+DS_SETTINGS='{{ star_rupture___app._ds_settings }}'
+
+if [ -f "${DS_SETTINGS}" ]; then
+  SESSION_NAME=$(sed -n 's/^[[:space:]]*"SessionName":[[:space:]]*"\([^"]*\)".*/\1/p' "${DS_SETTINGS}")
+  SAVE_D="{{ star_rupture___app._save_d }}/${SESSION_NAME}"
+  AUTOSAVE=$(ls ${SAVE_D}/AutoSave[0-9]*.sav 2>/dev/null | sort -V | tail -n 1)
+
+  if [ -z "${AUTOSAVE}" ]; then
+    FILE='AutoSave0.sav'
+  else
+    FILE=$(basename "${AUTOSAVE}")
+  fi
+
+  sed -i "s/^\([[:space:]]*\)\"SaveGameName\":[[:space:]]*\"[^\"]*\"/\1\"SaveGameName\": \"${FILE}\"/" "${DS_SETTINGS}"
+fi
+
+exit 0

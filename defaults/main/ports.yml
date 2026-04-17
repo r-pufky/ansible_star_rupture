@@ -12,14 +12,9 @@ star_rupture_ports:
     from_ip: 'any'
     to_port: 7777
     direction: 'in'
-    comment: 'Star Rupture main game connections'
+    comment: 'Star Rupture (Player Connections)'
   - proto: 'tcp'
     from_ip: 'any'
     to_port: 7777
     direction: 'in'
-    comment: 'Star Rupture main game connections'
-  - proto: 'udp'
-    from_ip: 'any'
-    to_port: 27015
-    direction: 'in'
-    comment: 'Star Rupture server query port'
+    comment: 'Star Rupture (Manage Server)'
