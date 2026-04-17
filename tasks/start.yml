@@ -63,11 +63,12 @@
   loop:
     - 'star_rupture_backup.service'
 
-- name: 'Start | 🛆 Additional configuration needed. 🛆'
+- name: 'Start | 🛆 New Game Required Actions 🛆'
+  when: star_rupture__srv._flg_new_game | default(false)
   ansible.builtin.debug:
     msg: |
 
-      🛆 New Game (new_game.json) Required Actions 🛆
+      🛆 New Game Required Actions 🛆
 
       1. Connect to server Public IP as player to start game.
       2. Disconnect.

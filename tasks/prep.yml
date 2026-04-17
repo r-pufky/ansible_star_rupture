@@ -67,3 +67,18 @@
     name: 'star_rupture.service'
     state: 'stopped'
   failed_when: false
+
+# Render configuration locally and resolve new game/load game state.
+- name: 'Prep | fact | resolve DSSettings.ini'
+  ansible.builtin.set_fact:
+    star_rupture__srv: "{{ star_rupture__srv | r_pufky.data.v3(
+
+        _flg_new_game=(
+            lookup(
+              'ansible.builtin.template',
+              star_rupture__srv._ds
+              if star_rupture__srv._ds | length > 0 else
+              'templates/default/new_game.json'
+            ) | from_json
+          ).StartNewGame | bool,
+      ) }}"
