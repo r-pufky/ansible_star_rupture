@@ -76,6 +76,7 @@ server reboots.
 ```
 
 After the server is deployed you **must**:
+
 1. Connect to server Public IP as player to start game.
 2. Disconnect.
 3. Stop server.
