@@ -49,8 +49,9 @@ Tasks are gated by feature flags and executed in the following order.
   1    | star_rupture_flg_container | Deploy container specific settings.
   2    | star_rupture_flg_cdn       | Statically set Steam CDN IP.
   3    | star_rupture_flg_update    | Update server on launch or if already installed.
-  4    | star_rupture_flg_config    | Set configuration files.
-  5    | star_rupture_flg_backup    | Enable local scheduled backup.
+  4    | star_rupture_flg_auto_save | Auto-detect latest AutoSave for Session.
+  5    | star_rupture_flg_config    | Set configuration files.
+  6    | star_rupture_flg_backup    | Enable local scheduled backup.
 
 ### Example Playbooks
 * **[templates/default][q]** - pre-defined server settings.
@@ -59,7 +60,32 @@ Tasks are gated by feature flags and executed in the following order.
 Due to the existing [vulnerabilities][p] this is the recommended way to setup
 a server.
 
+Start a new game in single player, save, exit, and import save files to be used
+for the dedicated server start. This is currently the most consistent way to
+start a new game.
+
+##### Deploy Existing Server
+Configuration files will be interpreted as templates, allowing for vault use of
+server configuration files. With static deployments, the service will
+**automatically** load the latest AutoSave*.sav from the specified session in
+DSSettings.txt.
+
+``` yaml
+- name: 'Deploy a Star Rupture with custom game settings.'
+  ansible.builtin.include_role:
+     name: 'r_pufky.game.star_rupture'
+  vars:
+    star_rupture_flg_backup: true
+    star_rupture_flg_config: true
+    # This will automatically load the last auto save on start.
+    star_rupture_srv_ds: 'host_vars/sr.example.com/load_save.json'
+    star_rupture_srv_admin: '{{ vault_admin_password }}'
+    star_rupture_srv_user: '{{ vault_user_password }}'
+```
+
 ##### New Server
+Not recommended: see static deployment, above.
+
 New server creation requires deploying, connecting to initialize the new
 session, and then updating DSSettings.txt to automatically load the session on
 server reboots.
@@ -88,26 +114,9 @@ After the server is deployed you **must**:
 
 Any server reboot before this happens will reset the session state.
 
-##### Deploy Existing Server
-Configuration files will be interpreted as templates, allowing for vault use of
-server configuration files. With static deployments, the service will
-**automatically** load the latest AutoSave*.sav from the specified session in
-DSSettings.txt.
-
-``` yaml
-- name: 'Deploy a Star Rupture with custom game settings.'
-  ansible.builtin.include_role:
-     name: 'r_pufky.game.star_rupture'
-  vars:
-    star_rupture_flg_backup: true
-    star_rupture_flg_config: true
-    # This will automatically load the last auto save on start.
-    star_rupture_srv_ds: 'host_vars/sr.example.com/load_save.json'
-    star_rupture_srv_admin: '{{ vault_admin_password }}'
-    star_rupture_srv_user: '{{ vault_user_password }}'
-```
-
 #### Remote Management
+Not recommended: see static deployment, above.
+
 The server may also be remotely managed via the game client. See
 [Security](#security) notice above. State is not kept between service restarts
 when configured to use remote management.

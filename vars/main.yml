@@ -49,6 +49,7 @@ star_rupture___app: "{{ {} | r_pufky.data.v3(
     _admin_pass='/home/steam/star_rupture/Password.json',
     _user_pass='/home/steam/star_rupture/PlayerPassword.json',
     _auto_load_save='/home/steam/star_rupture/auto_load_save',
+    _update_server='/home/steam/star_rupture/update_server',
     _bin=(
       '/home/steam/star_rupture/StarRupture/Binaries/Win64/' ~
       'StarRuptureServerEOS-Win64-Shipping.exe'

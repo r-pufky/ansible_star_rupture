@@ -77,7 +77,7 @@
 - name: '{{ "Install | filesystem | set " ~ star_rupture___app._ds_settings }}'
   when: not star_rupture_flg_config
   ansible.builtin.template:
-    src: 'templates/default/new_game.json'
+    src: 'default/new_game.json'
     dest: '{{ star_rupture___app._ds_settings }}'
     owner: '{{ steam__ctx._user }}'
     group: '{{ steam__ctx._group }}'
@@ -86,7 +86,7 @@
 # TODO - confirm blank token disables password.
 - name: '{{ "Install | filesystem | set " ~ star_rupture___app._admin_pass }}'
   ansible.builtin.template:
-    src: 'templates/auth.json.j2'
+    src: 'auth.json.j2'
     dest: '{{ star_rupture___app._admin_pass }}'
     owner: '{{ steam__ctx._user }}'
     group: '{{ steam__ctx._group }}'
@@ -96,7 +96,7 @@
 
 - name: '{{ "Install | filesystem | set " ~ star_rupture___app._user_pass }}'
   ansible.builtin.template:
-    src: 'templates/auth.json.j2'
+    src: 'auth.json.j2'
     dest: '{{ star_rupture___app._user_pass }}'
     owner: '{{ steam__ctx._user }}'
     group: '{{ steam__ctx._group }}'
@@ -107,8 +107,17 @@
 - name:
     '{{ "Install | filesystem | set " ~ star_rupture___app._auto_load_save }}'
   ansible.builtin.template:
-    src: 'templates/auto_load_save.j2'
+    src: 'auto_load_save.j2'
     dest: '{{ star_rupture___app._auto_load_save }}'
+    owner: '{{ steam__ctx._user }}'
+    group: '{{ steam__ctx._group }}'
+    mode: '0755'
+
+- name:
+    '{{ "Install | filesystem | set " ~ star_rupture___app._update_server }}'
+  ansible.builtin.template:
+    src: 'update_server.j2'
+    dest: '{{ star_rupture___app._update_server }}'
     owner: '{{ steam__ctx._user }}'
     group: '{{ steam__ctx._group }}'
     mode: '0755'

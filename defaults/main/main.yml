@@ -40,14 +40,25 @@ star_rupture_flg_cdn: false
 # Default: False.
 star_rupture_flg_update: false
 
-# 4. Set configuration files?
+# 4. Automatically update SaveGameName on launch?
+#
+# SaveGameName will direct the server to load the specified save file. Enabling
+# Will automatically update DSSettings.txt with the latest AutoSave from the
+# given profile on server start. Note: Dedicated server typically writes to the
+# same AutoSave file during session; this just provides an easy way to auto
+# detect the latest save file without needing to look.
+#
+# Default: False
+star_rupture_flg_auto_save: false
+
+# 5. Set configuration files?
 #
 # Sets star_rupture_srv_ds. Admin/User passwords are always applied.
 #
 # Default: False.
 star_rupture_flg_config: false
 
-# 5. Enable scheduled server backup?
+# 6. Enable scheduled server backup?
 #
 # See star_rupture_cfg_backup_*.
 #
